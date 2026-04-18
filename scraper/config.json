@@ -1,0 +1,28 @@
+{
+  "defaults": {
+    "maxPages": 3,
+    "minPrice": null,
+    "maxPrice": null,
+    "sort": "end_asc",
+    "currency": "JPY"
+  },
+  "request": {
+    "timeout": 15000,
+    "retries": 3,
+    "retryDelay": 1000,
+    "requestDelay": 1500
+  },
+  "headers": {
+    "Referer": "https://buyee.jp/",
+    "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+    "DNT": "1",
+    "Upgrade-Insecure-Requests": "1"
+  },
+  "sortOptions": {
+    "end_asc":    "Ending soonest",
+    "end_desc":   "Ending latest",
+    "price_asc":  "Price: low to high",
+    "price_desc": "Price: high to low",
+    "bids_desc":  "Most bids"
+  }
+}

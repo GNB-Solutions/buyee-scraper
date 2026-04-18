@@ -1,0 +1,16 @@
+{
+  "name": "gnb-scraper-ui",
+  "version": "1.0.0",
+  "description": "GNB Solutions — web scraper dashboard and client demo UI",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "kuroshiro": "^1.2.0",
+    "kuroshiro-analyzer-kuromoji": "^1.1.0"
+  }
+}

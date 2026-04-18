@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GNB Solutions — Web Scraper Suite</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── Navigation ────────────────────────────────────────────────────── -->
+  <header class="nav">
+    <div class="nav__brand">
+      <span class="nav__logo">GNB</span>
+      <span class="nav__wordmark">Solutions</span>
+    </div>
+    <nav class="nav__links">
+      <button class="nav__tab active" data-view="scraper">Scraper Tools</button>
+      <button class="nav__tab"        data-view="request">Request a Scraper</button>
+    </nav>
+  </header>
+
+  <!-- ── View: Scraper Dashboard ───────────────────────────────────────── -->
+  <main id="view-scraper" class="view active">
+    <div class="dashboard">
+
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar__inner">
+          <p class="sidebar__label">Available Sites</p>
+          <div id="sidebar-list"><!-- injected by JS --></div>
+
+          <!-- Profile section -->
+          <div class="sidebar__profile">
+            <p class="sidebar__label">Profile <span class="ollama-dot" id="ollama-dot" title="Checking AI…"></span></p>
+            <select class="field__input field__input--select profile-bar__select" id="profile-select">
+              <option value="">No profile</option>
+            </select>
+            <div class="sidebar__profile-actions">
+              <button class="btn btn--agent btn--sm" id="profile-new-btn" type="button">+ New</button>
+              <button class="btn btn--ghost btn--sm btn--danger-ghost" id="profile-delete-btn" type="button" hidden>Delete</button>
+            </div>
+
+            <!-- Inline create panel -->
+            <div class="profile-create" id="profile-create" hidden>
+              <div class="profile-create__tabs">
+                <button class="profile-create__tab active" data-tab="describe" type="button">Describe</button>
+                <button class="profile-create__tab" data-tab="photo" type="button">Photo</button>
+                <button class="profile-create__tab" data-tab="manual" type="button">Manual</button>
+              </div>
+
+              <div class="profile-create__body" id="pc-tab-describe">
+                <textarea class="field__input pc-textarea" id="pc-text" rows="3"
+                  placeholder="e.g. retro Sony Walkmans, good condition, original box…"></textarea>
+              </div>
+
+              <div class="profile-create__body" id="pc-tab-photo" hidden>
+                <div class="pc-drop" id="pc-drop">
+                  <input type="file" id="pc-file-input" accept="image/*" hidden />
+                  <p class="pc-drop__hint">Drop image or <button class="pc-drop__browse" type="button" id="pc-browse-btn">browse</button></p>
+                  <img class="pc-drop__preview" id="pc-img-preview" hidden alt="" />
+                </div>
+              </div>
+
+              <div class="profile-create__body" id="pc-tab-manual" hidden>
+                <input class="field__input" id="pc-manual-name" type="text" placeholder="Profile name" />
+              </div>
+
+              <div class="profile-create__actions" id="pc-input-actions">
+                <button class="btn btn--agent btn--sm" id="pc-generate-btn" type="button">Generate</button>
+                <button class="btn btn--ghost btn--sm" id="pc-cancel-btn" type="button">Cancel</button>
+              </div>
+
+              <!-- Loading -->
+              <div class="pc-loading" id="pc-loading" hidden>
+                <span class="pc-loading__spinner"></span>
+                <span class="pc-loading__label">Analysing…</span>
+              </div>
+
+              <!-- Result -->
+              <div class="pc-result" id="pc-result" hidden>
+                <input class="field__input pc-result__input" id="pc-result-name"  type="text" placeholder="Profile name" />
+                <input class="field__input pc-result__input" id="pc-result-query" type="text" placeholder="Search query" />
+                <div class="pc-kw-section">
+                  <p class="pc-kw-label pc-kw-label--pos">Positive</p>
+                  <div class="pc-kw-tags" id="pc-pos-tags"></div>
+                  <input class="pc-add-input" id="pc-add-pos" type="text" placeholder="+ add keyword" />
+                </div>
+                <div class="pc-kw-section">
+                  <p class="pc-kw-label pc-kw-label--neg">Negative</p>
+                  <div class="pc-kw-tags" id="pc-neg-tags"></div>
+                  <input class="pc-add-input" id="pc-add-neg" type="text" placeholder="+ add keyword" />
+                </div>
+                <p class="pc-reasoning" id="pc-reasoning"></p>
+                <div class="profile-create__actions">
+                  <button class="btn btn--agent btn--sm" id="pc-save-btn" type="button">Save &amp; search</button>
+                  <button class="btn btn--ghost btn--sm"  id="pc-retry-btn" type="button">Retry</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar__profile-insights">
+              <button class="btn btn--ghost btn--sm" id="insights-btn" type="button" hidden style="width:100%">Insights</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main panel -->
+      <section class="panel" id="main-panel">
+
+        <!-- Top bar: toggle · favicon · title · source tabs · visit link -->
+        <div class="panel__topbar">
+          <button class="panel__sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar">
+            <svg width="14" height="12" viewBox="0 0 14 12" fill="currentColor" aria-hidden="true">
+              <rect x="0" y="0" width="4" height="12" rx="1" opacity=".4"/>
+              <rect x="6" y="0" width="8" height="2.5" rx="1"/>
+              <rect x="6" y="4.75" width="8" height="2.5" rx="1"/>
+              <rect x="6" y="9.5" width="5.5" height="2.5" rx="1"/>
+            </svg>
+          </button>
+          <div class="panel__identity">
+            <img class="panel__favicon" id="panel-favicon" src="" alt="" onerror="this.style.display='none'" />
+            <h1 class="panel__title" id="scraper-title">Buyee.jp</h1>
+          </div>
+          <div class="subsite-tabs" id="subsite-tabs"></div>
+          <a class="panel__site-link" id="scraper-link" href="#" target="_blank" rel="noopener">Visit ↗</a>
+        </div>
+
+        <!-- Trainer insights panel -->
+        <div class="insights-panel" id="insights-panel" hidden>
+          <div class="insights-panel__head">
+            <span class="insights-panel__title">Trainer insights</span>
+            <span id="insights-count" class="insights-panel__count"></span>
+            <button class="insights-panel__close" id="insights-close">✕</button>
+          </div>
+          <div class="insights-panel__body">
+            <div class="insights-col">
+              <p class="insights-col__label insights-col__label--pos">Positive signals</p>
+              <div id="insights-positive"></div>
+            </div>
+            <div class="insights-col">
+              <p class="insights-col__label insights-col__label--neg">Negative signals</p>
+              <div id="insights-negative"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compact search form -->
+        <form class="search-form" id="search-form">
+          <div class="search-form__row">
+            <div class="field field--grow">
+              <label class="field__label" for="f-query">Search</label>
+              <input class="field__input" id="f-query" type="text"
+                     placeholder="e.g. PSP 3000, Gameboy, Walkman…" autocomplete="off" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="f-pages">Pages</label>
+              <input class="field__input field__input--short" id="f-pages" type="number" min="1" max="20" value="3" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="f-min">Min ¥</label>
+              <input class="field__input field__input--short" id="f-min" type="number" min="0" placeholder="Any" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="f-max">Max ¥</label>
+              <input class="field__input field__input--short" id="f-max" type="number" min="0" placeholder="Any" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="f-sort">Sort</label>
+              <select class="field__input field__input--select" id="f-sort">
+                <option value="end_asc">Ending soonest</option>
+                <option value="end_desc">Ending latest</option>
+                <option value="price_asc">Price ↑</option>
+                <option value="price_desc">Price ↓</option>
+                <option value="bids_desc">Most bids</option>
+              </select>
+            </div>
+            <div class="field field--action">
+              <button class="btn btn--primary" id="search-btn" type="submit">Search</button>
+              <button class="btn btn--ghost"   id="stop-btn"   type="button" hidden>Stop</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- ── Merged slim status bar (progress + stats in one line) ──── -->
+        <div class="status-bar" id="status-bar" hidden>
+          <div class="status-bar__track">
+            <div class="status-bar__fill" id="progress-bar"></div>
+          </div>
+          <div class="status-bar__row">
+            <span id="stat-count" class="status-bar__count">0 items</span>
+            <span class="status-bar__sep">·</span>
+            <span id="stat-avg">Avg —</span>
+            <span class="status-bar__sep">·</span>
+            <span id="stat-low">Low —</span>
+            <span class="status-bar__sep">·</span>
+            <span id="stat-high">High —</span>
+            <span class="status-bar__flex"></span>
+            <span id="progress-label" class="status-bar__label">Starting…</span>
+            <button class="btn btn--ghost btn--sm" id="export-btn" hidden>Export JSON</button>
+          </div>
+        </div>
+
+        <!-- Results table — fills all remaining height -->
+        <div class="results-wrap" id="results-wrap" hidden>
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th class="col-img"></th>
+                <th class="col-title">Title</th>
+                <th class="col-rate"></th>
+                <th class="col-price">Price</th>
+                <th class="col-time">Time Left</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+
+        <div class="state-message" id="state-empty"  hidden>No results found for that query.</div>
+        <div class="state-message state-message--err" id="state-error" hidden></div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- ── View: Request a Scraper ───────────────────────────────────────── -->
+  <main id="view-request" class="view" hidden>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero__inner">
+        <p class="hero__eyebrow">GNB Solutions</p>
+        <h1 class="hero__title">Get data from <em>any</em> website.</h1>
+        <p class="hero__body">
+          We build custom scrapers that automatically extract product listings,
+          prices, inventory, and more — delivered as clean JSON or CSV, on a
+          schedule that works for your business.
+        </p>
+        <a class="btn btn--primary btn--lg" href="#request-form">Request a scraper →</a>
+      </div>
+    </section>
+
+    <!-- Available + coming soon scrapers -->
+    <section class="sites-section">
+      <div class="sites-section__inner">
+        <h2 class="section-title">Supported sites</h2>
+        <div class="sites-grid" id="sites-grid"><!-- injected by JS --></div>
+      </div>
+    </section>
+
+    <!-- What you get -->
+    <section class="features-section">
+      <div class="features-section__inner">
+        <h2 class="section-title">What's included</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-card__icon">⚡</div>
+            <h3>Live streaming</h3>
+            <p>Results appear in real time as pages are scraped — no waiting for the whole job to finish.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">🔄</div>
+            <h3>Auto-retry</h3>
+            <p>Requests are retried automatically on failure with exponential back-off.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">🎛</div>
+            <h3>Configurable filters</h3>
+            <p>Price range, sort order, page depth — all configurable per run.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">📦</div>
+            <h3>JSON export</h3>
+            <p>Every result set exports to a clean, structured JSON file ready for import.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Request form -->
+    <section class="form-section" id="request-form">
+      <div class="form-section__inner">
+        <h2 class="section-title">Tell us what you need</h2>
+        <p class="section-sub">We'll get back to you within 24 hours.</p>
+
+        <form class="client-form" id="client-form">
+          <div class="client-form__row">
+            <div class="field field--grow">
+              <label class="field__label" for="cf-name">Your name <span class="req">*</span></label>
+              <input class="field__input" id="cf-name" type="text" placeholder="Jane Smith" required />
+            </div>
+            <div class="field field--grow">
+              <label class="field__label" for="cf-email">Email address <span class="req">*</span></label>
+              <input class="field__input" id="cf-email" type="email" placeholder="jane@company.com" required />
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cf-company">Company (optional)</label>
+            <input class="field__input" id="cf-company" type="text" placeholder="Acme Ltd." />
+          </div>
+          <div class="field">
+            <label class="field__label" for="cf-website">Website you want scraped <span class="req">*</span></label>
+            <input class="field__input" id="cf-website" type="text"
+                   placeholder="e.g. ebay.com, yahoo auctions, a specific URL…" required />
+          </div>
+          <div class="field">
+            <label class="field__label" for="cf-fields">Data fields you need</label>
+            <input class="field__input" id="cf-fields" type="text"
+                   placeholder="e.g. title, price, seller rating, shipping cost…" />
+          </div>
+          <div class="field">
+            <label class="field__label" for="cf-volume">Estimated volume</label>
+            <select class="field__input field__input--select" id="cf-volume">
+              <option value="">Not sure</option>
+              <option value="<1k">Under 1,000 records/run</option>
+              <option value="1k-10k">1,000 – 10,000 records/run</option>
+              <option value="10k-100k">10,000 – 100,000 records/run</option>
+              <option value="100k+">100,000+ records/run</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field__label" for="cf-notes">Anything else?</label>
+            <textarea class="field__input field__input--textarea" id="cf-notes"
+                      placeholder="Frequency, output format preferences, special requirements…" rows="4"></textarea>
+          </div>
+
+          <div class="client-form__footer">
+            <button class="btn btn--primary btn--lg" type="submit" id="cf-submit">Send request</button>
+          </div>
+        </form>
+
+        <!-- Success state -->
+        <div class="form-success" id="form-success" hidden>
+          <div class="form-success__icon">✓</div>
+          <h3>Request received!</h3>
+          <p>Thanks — we'll be in touch within 24 hours to discuss your project.</p>
+          <button class="btn btn--ghost" id="form-reset-btn">Submit another</button>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>© 2026 GNB Solutions</span>
+    <span class="footer__divider">·</span>
+    <span>Web Data Services</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
