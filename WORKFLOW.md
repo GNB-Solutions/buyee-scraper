@@ -20,22 +20,10 @@ These rules apply to every repo in the GNB-Solutions org and must be followed in
 
 ### After making changes
 
-1. Commit on the branch using the commit style below
+1. Commit on the branch
 2. Push the branch to origin
-3. Open a PR — title in the same style as the commit, body 2-3 casual lines max
+3. Open a PR — keep the title short and descriptive, body 2-3 lines max
 4. Tell the user the PR is ready to review and merge — **do not merge it yourself**
-
----
-
-## Commit style
-
-- **Title Case, past tense, semicolon for detail**
-- Single change: `Fixed Header Button Alignment; All four buttons now inline`
-- New feature: `Recent Orders Panel Added; Shows last 7 days of eBay sales, auto-refreshes after sync`
-- Multi-file: `Files Changed; LotSheet.tsx updated for X, sync route updated for Y`
-- PR title: same style as the commit subject line
-- **No bullet point lists** in commit bodies
-- **No Co-Authored-By lines** — ever
 
 ---
 
@@ -45,7 +33,7 @@ These rules apply to every repo in the GNB-Solutions org and must be followed in
 git checkout -b feature/my-feature
 # make changes
 git add <files>
-git commit -m "Feature Name Added; brief detail"
+git commit -m "short descriptive message"
 git push -u origin feature/my-feature
-gh pr create --title "Feature Name Added" --body "casual 2-3 line description"
+gh pr create --title "Short description" --body "2-3 line summary"
 ```
